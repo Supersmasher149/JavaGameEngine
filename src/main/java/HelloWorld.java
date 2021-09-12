@@ -10,6 +10,7 @@ import java.nio.*;
 import static org.lwjgl.glfw.Callbacks.*;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.opengl.GL32.*;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.system.MemoryUtil.*;
 
@@ -17,6 +18,33 @@ public class HelloWorld {
 
     // The window handle
     private long window;
+
+    public void vertextTest() {
+        int vao = glGenVertexArrays();
+        glBindVertexArray(vao);
+
+        try (MemoryStack stack = MemoryStack.stackPush()) {
+            FloatBuffer vertices = stack.mallocFloat(3 * 6);
+            vertices.put(-0.6f).put(-0.4f).put(0f).put(1f).put(0f).put(0f);
+            vertices.put(0.6f).put(-0.4f).put(0f).put(0f).put(1f).put(0f);
+            vertices.put(0f).put(0.6f).put(0f).put(0f).put(0f).put(1f);
+            vertices.flip();
+
+            int vbo = glGenBuffers();
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            glBufferData(GL_ARRAY_BUFFER, vertices, GL_STATIC_DRAW);
+        }
+    }
+
+    public void shadersTest() {
+        int vertexShader = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vertexShader, vertexSource);
+        glCompileShader(vertexShader);
+
+        int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fragmentShader, fragmentSource);
+        glCompileShader(fragmentShader);
+    }
 
     public void run() {
         System.out.println("Hello LWJGL " + Version.getVersion() + "!");
@@ -46,6 +74,10 @@ public class HelloWorld {
         glfwDefaultWindowHints(); // optional, the current window hints are already the default
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE); // the window will stay hidden after creation
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE); // the window will be resizable
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 
         // Create the window
         window = glfwCreateWindow(300, 300, "Hello World!", NULL, NULL);
